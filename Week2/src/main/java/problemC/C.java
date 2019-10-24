@@ -52,9 +52,15 @@ public class C {
         var resultLeft = postDistance(distL, leftCount);
         var resultRight = postDistance(distR, rightCount);
         if (leftCount == 1 || resultLeft == 0) resultLeft = Double.MAX_VALUE;
-        if (rightCount == 1 || resultRight == 0) resultRight = Double.MAX_VALUE;
+        if (rightCount == 1 ||resultRight == 0) resultRight = Double.MAX_VALUE;
 
-        return Math.min(resultLeft, resultRight);
+        var result = Math.min(resultLeft, resultRight);
+        result = result == Double.MAX_VALUE ? 0.0 : result;
+        if (leftCount > 1 && rightCount > 1) {
+            return Math.min(v-u, result);
+        } else {
+            return result;
+        }
     }
 
     private static boolean canyonBlocksOptimalPostDistribution(int d, int p, int u, int v) {
