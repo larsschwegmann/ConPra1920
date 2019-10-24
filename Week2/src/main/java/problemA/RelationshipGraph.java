@@ -91,8 +91,9 @@ class RelationshipGraph {
         var bSize = this.size[b];
 
         if (aSize < bSize) {
+            var temp = a;
             a = b;
-            b = a;
+            b = temp;
         }
 
         this.parent[b] = a;
