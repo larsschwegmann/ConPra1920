@@ -77,7 +77,7 @@ class Tests {
     void problemC() throws IOException {
         var inputs = getTestInput("C");
         var outputs = getTestOutput("C");
-        for (int i=1; i<inputs.length; i++) {
+        for (int i=2; i<inputs.length; i++) {
             var in = inputs[i];
             var expectedOut = outputs[i];
             var mockIn = new ByteArrayInputStream(in.getBytes());
