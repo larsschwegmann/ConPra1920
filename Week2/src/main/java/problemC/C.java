@@ -62,6 +62,7 @@ public class C {
                     var shifted = postDistance((v - u) + distL, leftCount + 1);
                     if (shifted >= (v - u)) {
                         return Math.min(result, shifted);
+
                     } else {
                         return v - u;
                     }
@@ -85,7 +86,7 @@ public class C {
 
     private static boolean canyonBlocksOptimalPostDistribution(int d, int p, int u, int v) {
         var optimalDist = postDistance(d, p);
-        for (int i=0; i<d; i++) {
+        for (int i=0; i<p; i++) {
             var postLoc = i * optimalDist;
             if (postLoc > u && postLoc < v) {
                 return true;
