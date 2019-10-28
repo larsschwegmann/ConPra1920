@@ -3,8 +3,9 @@ package problemE;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.stream.IntStream;
 
 public class E {
@@ -40,9 +41,6 @@ public class E {
                     // Add new friend
                     union(parent, size, hatreds, countryA, countryB);
                 } else {
-                    //hatreds.get(find(parent, countryA)).forEach(c -> union(parent, size, hatreds, countryB, c));
-                    //hatreds.get(find(parent, countryB)).forEach(c -> union(parent, size, hatreds, countryA, c));
-
                     var a = find(parent, countryA);
                     var b = find(parent, countryB);
                     hatreds.get(a).add(b);
