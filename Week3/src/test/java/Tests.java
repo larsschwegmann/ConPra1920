@@ -101,7 +101,6 @@ class Tests {
             D.main(EMPTY_ARRAY);
             System.setIn(System.in);
             assertEquals(expectedOut, outContent.toString());
-            outContent.writeTo(originalOut);
             outContent.reset();
         }
     }
