@@ -45,7 +45,7 @@ class Tests {
     void problemA() throws IOException {
         var inputs = getTestInput("A");
         var outputs = getTestOutput("A");
-        for (int i=0; i<inputs.length; i++) {
+        for (int i=0; i<1000000; i++) {
             var in = inputs[i];
             var expectedOut = outputs[i];
             var mockIn = new ByteArrayInputStream(in.getBytes());
@@ -54,6 +54,18 @@ class Tests {
             System.setIn(System.in);
             assertEquals(expectedOut, outContent.toString());
             outContent.reset();
+        }
+    }
+
+    @Test
+    void problemAAutogen() throws IOException {
+        for (int i=0; i<100000; i++) {
+            var in = TestGenA.generateTests();
+            var mockIn = new ByteArrayInputStream(in.getBytes());
+            System.setIn(mockIn);
+            System.setOut(System.out);
+            A.main(EMPTY_ARRAY);
+            System.setIn(System.in);
         }
     }
 
@@ -74,10 +86,20 @@ class Tests {
     }
 
     @Test
+    void problemBAutogen() throws IOException {
+        for (int i=0; i<100000; i++) {
+            var in = TestGenB.generate();
+            var mockIn = new ByteArrayInputStream(in.getBytes());
+            System.setIn(mockIn);
+            B.main(EMPTY_ARRAY);
+        }
+    }
+
+    @Test
     void problemC() throws IOException {
         var inputs = getTestInput("C");
         var outputs = getTestOutput("C");
-        for (int i=0; i<inputs.length; i++) {
+        for (int i=2; i<inputs.length; i++) {
             var in = inputs[i];
             var expectedOut = outputs[i];
             var mockIn = new ByteArrayInputStream(in.getBytes());
