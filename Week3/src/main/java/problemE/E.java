@@ -52,7 +52,7 @@ public class E {
 
         @Override
         public String toString() {
-            return "r" + room + ", l: " + level;
+            return "r: " + room + ", l: " + level;
         }
     }
 
@@ -78,8 +78,11 @@ public class E {
                 var ai = abl[0] - 1;
                 var bi = abl[1] - 1;
                 var li = abl[2];
-                hallways[ai].add(new Edge(ai, bi, li));
-                hallways[bi].add(new Edge(bi, ai, li));
+                if (ai != bi) {
+                    // kick reflexive edges, they dont hold any value
+                    hallways[ai].add(new Edge(ai, bi, li));
+                    hallways[bi].add(new Edge(bi, ai, li));
+                }
             }
 
             for (int i=0; i<k; i++) {
@@ -100,6 +103,7 @@ public class E {
                 }
                 queue.add(e);
             });
+            if (controlRooms.containsKey(0)) reachableControlRooms.add(new ControlRoom(0, controlRooms.get(0)));
             visited.add(0);
 
             while (!queue.isEmpty() && visited.size() < n) {
@@ -141,10 +145,8 @@ public class E {
 
                     // this minimum water level is achievable, set current to required minimum
                     currentWaterLevel = minimumWaterLevel;
-                    if (minimumWaterLevel - mostPowerfulControlRoom.getLevel() == 0) {
-                        // Remove control room from reachable rooms as its no longer useful
-                        reachableControlRooms.remove(mostPowerfulControlRoom);
-                    }
+                    // Remove control rooms from reachable rooms if they are no longer useful
+                    reachableControlRooms.removeIf(r -> r.getLevel() >= minimumWaterLevel);
                 }
             }
 
