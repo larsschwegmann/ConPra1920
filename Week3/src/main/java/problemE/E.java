@@ -96,13 +96,8 @@ public class E {
             var reachableControlRooms = new TreeSet<>(Comparator.comparing(ControlRoom::getLevel));
             var visited = new HashSet<Integer>();
             var queue = new PriorityQueue<>(Comparator.comparing(Edge::getMinWaterLevel).reversed());
-
-            hallways[0].forEach(e -> {
-                if (controlRooms.containsKey(e.getDestination())) {
-                    reachableControlRooms.add(new ControlRoom(e.getDestination(), controlRooms.get(e.getDestination())));
-                }
-                queue.add(e);
-            });
+            
+            queue.addAll(hallways[0]);
             if (controlRooms.containsKey(0)) reachableControlRooms.add(new ControlRoom(0, controlRooms.get(0)));
             visited.add(0);
 
