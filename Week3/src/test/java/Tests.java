@@ -87,7 +87,7 @@ class Tests {
 
     @Test
     void problemBAutogen() throws IOException {
-        for (int i=0; i<100000; i++) {
+        for (int i=0; i<100; i++) {
             var in = TestGenB.generate();
             var mockIn = new ByteArrayInputStream(in.getBytes());
             System.setIn(mockIn);

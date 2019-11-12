@@ -3,15 +3,13 @@ package problemB;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Stack;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class B {
     public static void main(String[] args) throws IOException {
+        //var file = new FileInputStream("/Users/lars/Documents/ConPra/Solutions/Week3/src/test/resources/problemB/dimi.in");
         var in = new InputStreamReader(System.in);
         var buff = new BufferedReader(in);
 
@@ -34,8 +32,7 @@ public class B {
                     .boxed()
                     .collect(Collectors.toSet());
 
-            var packagesToRemove = new ArrayList<Integer>(r);
-            var conflict = false;
+            var packagesToRemove = new HashSet<Integer>(r);
             var toRemove = Arrays.stream(buff.readLine().split(" "))
                     .filter(a -> !a.equals(""))
                     .mapToInt(Integer::parseInt)
@@ -44,42 +41,49 @@ public class B {
                     .toArray();
 
             for (var pack : toRemove) {
-                if (packagesToKeep.contains(pack) && !conflict) {
+                if (packagesToKeep.contains(pack)) {
                     System.out.println("conflict");
-                    conflict = true;
+                    for (int i=0; i<=d; i++) buff.readLine();
+                    continue caseIter;
                 }
                 packagesToRemove.add(pack);
             }
 
-            TreeSet<Integer>[] predecessors = new TreeSet[n];
-            IntStream.range(0, n).forEach(i -> predecessors[i] = new TreeSet<>());
+            ArrayList<Integer>[] successors = new ArrayList[n];
+            IntStream.range(0, n).forEach(i -> successors[i] = new ArrayList<>());
 
             for (int i=0; i<d; i++) {
                 var dep = Arrays.stream(buff.readLine().split(" "))
                         .mapToInt(Integer::parseInt)
                         .map(a -> a - 1)
                         .toArray();
-                predecessors[dep[1]].add(dep[0]);
+                successors[dep[0]].add(dep[1]);
             }
 
-            if (!conflict) {
-                for (var pack : packagesToRemove) {
-                    var s =  new Stack<Integer>();
-                    predecessors[pack].forEach(s::push);
+            for (var keep : packagesToKeep) {
+                var s = new Stack<Integer>();
+                var visited = new HashSet<Integer>();
+                s.push(keep);
 
-                    while (!s.isEmpty()) {
-                        var pred = s.pop();
-                        if (packagesToKeep.contains(pred) || pred.equals(pack)) {
-                            System.out.println("conflict");
-                            buff.readLine();
-                            continue caseIter;
-                        }
+                while (!s.isEmpty()) {
+                    var x = s.pop();
 
-                        predecessors[pred].forEach(s::push);
+                    if (packagesToRemove.contains(x)) {
+                        System.out.println("conflict");
+                        buff.readLine();
+                        continue caseIter;
                     }
+
+                    if (visited.contains(x)) {
+                        continue;
+                    }
+
+                    successors[x].stream().filter(y -> !visited.contains(y)).forEach(s::push);
+                    visited.add(x);
                 }
-                System.out.println("ok");
             }
+
+            System.out.println("ok");
 
             buff.readLine();
         }

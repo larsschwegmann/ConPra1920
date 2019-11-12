@@ -33,15 +33,16 @@ public class C {
             for (int v=0; v<this.adjacencies.length; v++) {
                 if (pre[v] == 0) {
                     s.add(v);
-                    while (!s.isEmpty()) {
-                        var v2 = s.poll();
-                        o[v2] = i++;
-                        for (var u : getOutgoingRoads(v2)) {
-                            pre[u]--;
-                            if (pre[u] == 0) {
-                                s.add(u);
-                            }
-                        }
+                }
+            }
+
+            while (!s.isEmpty()) {
+                var v2 = s.poll();
+                o[v2] = i++;
+                for (var u : getOutgoingRoads(v2)) {
+                    pre[u] = pre[u] - 1;
+                    if (pre[u] == 0) {
+                        s.add(u);
                     }
                 }
             }
@@ -63,15 +64,16 @@ public class C {
             for (int v=0; v<this.adjacencies.length; v++) {
                 if (pre[v] == 0) {
                     s.add(v);
-                    while (!s.isEmpty()) {
-                        var v2 = s.poll();
-                        o[v2] = i++;
-                        for (var u : getOutgoingRoads(v2)) {
-                            pre[u]--;
-                            if (pre[u] == 0) {
-                                s.add(u);
-                            }
-                        }
+                }
+            }
+
+            while (!s.isEmpty()) {
+                var v2 = s.poll();
+                o[v2] = i++;
+                for (var u : getOutgoingRoads(v2)) {
+                    pre[u] = pre[u] - 1;
+                    if (pre[u] == 0) {
+                        s.add(u);
                     }
                 }
             }
