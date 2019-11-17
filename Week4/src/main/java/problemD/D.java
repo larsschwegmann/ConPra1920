@@ -91,7 +91,7 @@ public class D {
 
         while (!s.isEmpty()) {
             var v2 = s.poll();
-            o[v2] = i++;
+            o[v2] = i++;+
             for (var u : getSuccessors(graph, v2)) {
                 pre[u] = pre[u] - 1;
                 if (pre[u] == 0) {
