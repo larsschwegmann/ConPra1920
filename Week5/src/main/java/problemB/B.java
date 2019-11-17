@@ -21,46 +21,28 @@ public class B {
             var m = nmb[1];
             var b = nmb[2];
 
-            var mealGraphSize = 2 + n + m;
-            var bevGraphSize = 2 + n + b;
+            var menuGraphSize = 2 + m + n + b;
+            var menuGraph = new int[menuGraphSize][menuGraphSize];
 
-            var mealGraph = new int[mealGraphSize][mealGraphSize];
-            var bevGraph = new int[bevGraphSize][bevGraphSize];
-
-            // Fill up graphs
-            IntStream.range(0, mealGraphSize).forEach(i -> Arrays.fill(mealGraph[i], 0));
-            IntStream.range(0, bevGraphSize).forEach(i -> Arrays.fill(bevGraph[i], 0));
+            // Fill up graph
+            IntStream.range(0, menuGraphSize).forEach(i -> Arrays.fill(menuGraph[i], 0));
 
             for (int meal=0; meal<m; meal++) {
-                mealGraph[menuItemIndex(meal, n)][mealGraphSize - 1] = 1;
-                mealGraph[mealGraphSize - 1][menuItemIndex(meal, n)] = 1;
+                addEdge(menuGraph, 0, mealIndex(meal));
             }
             for (int bev=0; bev<b; bev++) {
-                bevGraph[menuItemIndex(bev, n)][bevGraphSize - 1] = 1;
-                bevGraph[bevGraphSize - 1][menuItemIndex(bev, n)] = 1;
+                addEdge(menuGraph, beverageIndex(bev, m, n), menuGraphSize - 1);
             }
 
             for (int p=0; p<n; p++) {
-                // Populate graph
-                mealGraph[0][personIndex(p)] = 1;
-                mealGraph[personIndex(p)][0] = 1;
-                bevGraph[0][personIndex(p)] = 1;
-                bevGraph[personIndex(p)][0] = 1;
-
                 var choiceLine = Arrays.stream(buff.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
                 var meal = choiceLine[0] - 1;
                 var beverage = choiceLine[1] - 1;
-                mealGraph[personIndex(p)][menuItemIndex(meal, n)] = 1;
-                mealGraph[menuItemIndex(meal, n)][personIndex(p)] = 1;
-                bevGraph[personIndex(p)][menuItemIndex(beverage, n)] = 1;
-                bevGraph[menuItemIndex(beverage, n)][personIndex(p)] = 1;
+                addEdge(menuGraph, personIndex(p, m), mealIndex(meal));
+                addEdge(menuGraph, personIndex(p, m), beverageIndex(beverage, m, n));
             }
 
-            var mealResult = fordFulkerson(mealGraph, 0, mealGraphSize - 1);
-            var bevResult = fordFulkerson(bevGraph, 0, bevGraphSize - 1);
-            var result = Math.min(mealResult, bevResult);
-
-            System.out.println("Case #" + t + ": " + result);
+            System.out.println("Case #" + t + ": " + fordFulkerson(menuGraph, 0, menuGraphSize - 1));
 
             buff.readLine();
         }
@@ -126,11 +108,20 @@ public class B {
         return retval;
     }
 
-    private static int personIndex(int p) {
-        return 1 + p;
+    private static int personIndex(int p, int m) {
+        return 1 + m + p;
     }
 
-    private static int menuItemIndex(int m, int personOffset) {
-        return 1 + personOffset + m;
+    private static int mealIndex(int m) {
+        return 1 + m;
+    }
+
+    private static int beverageIndex(int b, int m, int n) {
+        return 1 + m + n + b;
+    }
+
+    private static void addEdge(int[][] graph, int a, int b) {
+        graph[a][b] = 1;
+        graph[b][a] = 1;
     }
 }
