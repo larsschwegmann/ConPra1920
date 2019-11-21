@@ -3,10 +3,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import problemA.A;
 import problemB.B;
-import problemB.B_dimi;
 import problemC.C;
 import problemD.D;
 import problemE.E;
+import problemG.G;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -14,7 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -56,46 +55,6 @@ class Tests {
             System.setIn(System.in);
             assertEquals(expectedOut, outContent.toString());
             outContent.reset();
-        }
-    }
-
-    String generateInputProblemB() {
-        var rnd = new Random();
-        var sb = new StringBuilder();
-        var casesCount = rnd.nextInt(19) + 1;
-        sb.append(casesCount).append("\n");
-        for (int t=1; t<=casesCount; t++) {
-            var n = rnd.nextInt(9) + 1;
-            var m = rnd.nextInt(9) + 1;
-            var b = rnd.nextInt(9) + 1;
-            sb.append(n).append(" ").append(m).append(" ").append(b).append("\n");
-            for (int i=0; i<n; i++) sb.append(rnd.nextInt(m) + 1).append(" ").append(rnd.nextInt(b) + 1).append("\n");
-            sb.append("\n");
-        }
-
-        return sb.toString();
-    }
-
-    @Test
-    void autogenProblemB() throws IOException {
-        for (int i=0; i<500000; i++) {
-            var in = generateInputProblemB();
-            var mockIn = new ByteArrayInputStream(in.getBytes());
-            var bt = new ByteArrayOutputStream();
-            var expectedOut = new PrintStream(bt);
-            System.setIn(mockIn);
-            System.setOut(expectedOut);
-            B_dimi.main(EMPTY_ARRAY);
-            var abt = new ByteArrayOutputStream();
-            var actualOut = new PrintStream(abt);
-            mockIn = new ByteArrayInputStream(in.getBytes());
-            System.setIn(mockIn);
-            System.setOut(actualOut);
-            B.main(EMPTY_ARRAY);
-            if (!bt.toString(Charset.defaultCharset()).equals(abt.toString(Charset.defaultCharset()))) {
-                originalOut.println("Input:\n" + in);
-            }
-            assertEquals(bt.toString(Charset.defaultCharset()), abt.toString(Charset.defaultCharset()));
         }
     }
 
@@ -157,6 +116,22 @@ class Tests {
             var mockIn = new ByteArrayInputStream(in.getBytes());
             System.setIn(mockIn);
             E.main(EMPTY_ARRAY);
+            System.setIn(System.in);
+            assertEquals(expectedOut, outContent.toString());
+            outContent.reset();
+        }
+    }
+
+    @Test
+    void problemG() throws IOException {
+        var inputs = getTestInput("G");
+        var outputs = getTestOutput("G");
+        for (int i=2; i<inputs.length; i++) {
+            var in = inputs[i];
+            var expectedOut = outputs[i];
+            var mockIn = new ByteArrayInputStream(in.getBytes());
+            System.setIn(mockIn);
+            G.main(EMPTY_ARRAY);
             System.setIn(System.in);
             assertEquals(expectedOut, outContent.toString());
             outContent.reset();

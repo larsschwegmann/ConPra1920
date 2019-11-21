@@ -3,9 +3,7 @@ package problemB;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Stack;
+import java.util.*;
 import java.util.stream.IntStream;
 
 public class B {
@@ -21,7 +19,7 @@ public class B {
             var m = nmb[1];
             var b = nmb[2];
 
-            var menuGraphSize = 2 + m + n + b;
+            var menuGraphSize = 2 + m + b;
             var menuGraph = new int[menuGraphSize][menuGraphSize];
 
             // Fill up graph
@@ -31,15 +29,14 @@ public class B {
                 addEdge(menuGraph, 0, mealIndex(meal));
             }
             for (int bev=0; bev<b; bev++) {
-                addEdge(menuGraph, beverageIndex(bev, m, n), menuGraphSize - 1);
+                addEdge(menuGraph, beverageIndex(bev, m), menuGraphSize - 1);
             }
 
             for (int p=0; p<n; p++) {
                 var choiceLine = Arrays.stream(buff.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
                 var meal = choiceLine[0] - 1;
                 var beverage = choiceLine[1] - 1;
-                addEdge(menuGraph, personIndex(p, m), mealIndex(meal));
-                addEdge(menuGraph, personIndex(p, m), beverageIndex(beverage, m, n));
+                addEdge(menuGraph, mealIndex(meal), beverageIndex(beverage, m));
             }
 
             System.out.println("Case #" + t + ": " + fordFulkerson(menuGraph, 0, menuGraphSize - 1));
@@ -57,7 +54,7 @@ public class B {
 
         int maxFlow = 0;
 
-        while (dfs(residualNetwork, source, sink, parent)) {
+        while (bfs(residualNetwork, source, sink, parent)) {
             int maxFlowCurrentPath = Integer.MAX_VALUE;
 
             for (int c=sink; c!=source; c=parent[c]) {
@@ -98,6 +95,30 @@ public class B {
         return visited[sink];
     }
 
+    private static boolean bfs(int[][] residualNetwork, int source, int sink, int[] parent) {
+        var visited = new boolean[residualNetwork.length];
+        Arrays.fill(visited, false);
+
+        Queue<Integer> next = new LinkedList<>();
+        next.add(source);
+        visited[source] = true;
+        parent[source] = -1;
+
+        while (!next.isEmpty()) {
+            var vertex = next.poll();
+            for (Integer succ : getNewSuccessors(residualNetwork, visited, vertex)) {
+                next.add(succ);
+                parent[succ] = vertex;
+                visited[succ] = true;
+                if (succ == sink) {
+                    return visited[sink];
+                }
+            }
+        }
+
+        return visited[sink];
+    }
+
     private static ArrayList<Integer> getNewSuccessors(int[][] graph, boolean[] visited, int source) {
         var retval = new ArrayList<Integer>();
         for (int i=0; i<graph.length; i++) {
@@ -108,20 +129,16 @@ public class B {
         return retval;
     }
 
-    private static int personIndex(int p, int m) {
-        return 1 + m + p;
-    }
-
     private static int mealIndex(int m) {
         return 1 + m;
     }
 
-    private static int beverageIndex(int b, int m, int n) {
-        return 1 + m + n + b;
+    private static int beverageIndex(int b, int m) {
+        return 1 + m + b;
     }
 
     private static void addEdge(int[][] graph, int a, int b) {
         graph[a][b] = 1;
-        graph[b][a] = 1;
+        //graph[b][a] = 1;
     }
 }
