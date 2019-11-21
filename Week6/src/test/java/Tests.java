@@ -126,7 +126,7 @@ class Tests {
     void problemG() throws IOException {
         var inputs = getTestInput("G");
         var outputs = getTestOutput("G");
-        for (int i=2; i<inputs.length; i++) {
+        for (int i=0; i<inputs.length; i++) {
             var in = inputs[i];
             var expectedOut = outputs[i];
             var mockIn = new ByteArrayInputStream(in.getBytes());

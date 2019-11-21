@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.IntStream;
 
 class Coordinate {
@@ -70,122 +69,62 @@ public class G {
                 map[r] = buff.readLine().toCharArray();
             }
 
-            System.out.println("Case #" + t + ": " + (canEscape(map) ? "yes" : "no"));
+            var found = false;
+            for (int i=0; i<10000; i++) {
+                if (canEscape(map)) {
+                    System.out.println("Case #" + t + ": yes");
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                System.out.println("Case #" + t + ": no");
+            }
 
             buff.readLine();
         }
     }
 
     private static boolean canEscape(char[][] map) {
-        var startPos = getStartPosition(map);
-        Queue<Coordinate> toolsPos = new PriorityQueue<>(Comparator.comparing(c -> manhattenDistance(startPos, c)));
-        toolsPos.addAll(getToolPositions(map));
+        var mapCopy = new char[map.length][map[0].length];
+        IntStream.range(0, map.length).forEach(i -> mapCopy[i] = Arrays.copyOf(map[i], map[i].length));
+        var toolCount = getToolPositions(mapCopy).size();
 
-        if (toolsPos.isEmpty()) {
-            // Base case, no tools left to find, we are done
-            return true;
-        }
+        var current = getStartPosition(mapCopy);
+        var options = getNeighbours(mapCopy, current);
+        var rnd = new Random();
 
-        while (!toolsPos.isEmpty()) {
-            var dest = toolsPos.poll();
-            var path = findPath(map, startPos, dest, a -> manhattenDistance(a, dest));
-            if (path != null) {
-                // Successfully found path
-                // Create new map where start is the visited tool and path is blocked
-                var alteredMap = changeMapByBlockingPath(map, path);
-                if (canEscape(alteredMap)) {
+        while (!options.isEmpty()) {
+            var randomOpt = options.get(rnd.nextInt(options.size()));
+            if (isTool(getAtPos(mapCopy, randomOpt))) {
+                if (--toolCount == 0) {
                     return true;
                 }
             }
+            mapCopy[randomOpt.getRow()][randomOpt.getCol()] = '$';
+            current = randomOpt;
+            options = getNeighbours(mapCopy, current);
         }
-
         return false;
     }
 
-    private static char[][] changeMapByBlockingPath(char[][] map, List<Coordinate> path) {
-        var alteredMap = new char[map.length][map[0].length];
-        IntStream.range(0, map.length).forEach(i -> alteredMap[i] = Arrays.copyOf(map[i], map[i].length));
-        var it = path.listIterator();
-        for (int i=0; i<path.size(); i++) {
-            var coord = it.next();
-            if (i == path.size() - 1) {
-                // Set end of path (== visited tool position) to new start pos
-                alteredMap[coord.getRow()][coord.getCol()] = 'L';
-            } else {
-                // Set path waypoints to debug obstacle so that we can differentiate between wall and previous paths
-                alteredMap[coord.getRow()][coord.getCol()] = '$';
-            }
-        }
-
-        return alteredMap;
-    }
-
-    private static List<Coordinate> findPath(char[][] map, Coordinate start, Coordinate dest, Function<Coordinate, Integer> h) {
-        // Basically A*
-
-        var openSet = new HashSet<Coordinate>();
-        openSet.add(start);
-
-        var cameFrom = new HashMap<Coordinate, Coordinate>();
-
-        var gScore = new HashMap<Coordinate, Integer>();
-        gScore.put(start, Integer.MAX_VALUE);
-
-        var fScore = new HashMap<Coordinate, Integer>();
-        fScore.put(start, h.apply(start));
-
-        while (!openSet.isEmpty()) {
-            var current = openSet.stream().min(Comparator.comparing(c -> fScore.getOrDefault(c, Integer.MAX_VALUE))).get();
-            if (current.equals(dest)) {
-                return reconstructPath(cameFrom, current, start);
-            }
-
-            openSet.remove(current);
-
-            for (var neighbour : getNeighbours(map, current, dest)) {
-                var tentativeGScore = gScore.getOrDefault(current, Integer.MAX_VALUE) + 1; // distance between two adjacent nodes is always 1
-                if (tentativeGScore < gScore.getOrDefault(neighbour, Integer.MAX_VALUE)) {
-                    cameFrom.put(neighbour, current);
-                    gScore.put(neighbour, tentativeGScore);
-                    fScore.put(neighbour, tentativeGScore + h.apply(neighbour));
-                    openSet.add(neighbour);
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private static List<Coordinate> reconstructPath(HashMap<Coordinate, Coordinate> cameFrom, Coordinate current, Coordinate start) {
-        var path = new LinkedList<Coordinate>();
-        path.add(current);
-
-        while (!current.equals(start)) {
-            var pred = cameFrom.get(current);
-            path.addFirst(pred);
-            current = pred;
-        }
-
-        return path;
-    }
-
-    private static List<Coordinate> getNeighbours(char[][] map, Coordinate coord, Coordinate dest) {
+    private static List<Coordinate> getNeighbours(char[][] map, Coordinate coord) {
         // dest is the only tool field we're allowed to step on
         var neighbours = new ArrayList<Coordinate>(4);
         // Top
-        if (coord.getRow() > 0 && isWalkable(getAtPos(map, coord.above())) && (!isTool(getAtPos(map, coord.above())) || coord.above().equals(dest))) {
+        if (coord.getRow() > 0 && isWalkable(getAtPos(map, coord.above()))) {
             neighbours.add(coord.above());
         }
         // Right
-        if (coord.getCol() < map[0].length - 1 && isWalkable(getAtPos(map, coord.right())) && (!isTool(getAtPos(map, coord.above())) || coord.above().equals(dest))) {
+        if (coord.getCol() < map[0].length - 1 && isWalkable(getAtPos(map, coord.right()))) {
             neighbours.add(coord.right());
         }
         // Bottom
-        if (coord.getRow() < map.length - 1 && isWalkable(getAtPos(map, coord.below())) && (!isTool(getAtPos(map, coord.above())) || coord.above().equals(dest))) {
+        if (coord.getRow() < map.length - 1 && isWalkable(getAtPos(map, coord.below()))) {
             neighbours.add(coord.below());
         }
         // Left
-        if (coord.getCol() > 0 && isWalkable(getAtPos(map, coord.left())) && (!isTool(getAtPos(map, coord.above())) || coord.above().equals(dest))) {
+        if (coord.getCol() > 0 && isWalkable(getAtPos(map, coord.left()))) {
             neighbours.add(coord.left());
         }
         return neighbours;
@@ -228,9 +167,5 @@ public class G {
 
     private static char getAtPos(char[][] map, Coordinate coord) {
         return map[coord.getRow()][coord.getCol()];
-    }
-
-    private static int manhattenDistance(Coordinate a, Coordinate b) {
-        return Math.abs(b.getRow() - a.getRow()) + Math.abs(b.getCol() - a.getCol());
     }
 }
