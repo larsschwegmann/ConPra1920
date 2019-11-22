@@ -22,15 +22,6 @@ public class SATVariable implements Comparable<SATVariable> {
         return !this.assignedValue;
     }
 
-    public boolean wasAssignedValue() {
-        return !this.unassigned;
-    }
-
-    public void resetAssignment() {
-        this.unassigned = true;
-        this.assignedValue = false;
-    }
-
 
     @Override
     public boolean equals(Object o) {

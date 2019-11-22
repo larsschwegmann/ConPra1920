@@ -4,9 +4,13 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class SATClause {
-
+    private int id;
     private Set<SATVariable> positiveVariables = new TreeSet<>();
     private Set<SATVariable> negatedVariables = new TreeSet<>();
+
+    public SATClause(int id) {
+        this.id = id;
+    }
 
     public void addPositive(SATVariable a) {
         positiveVariables.add(a);
@@ -14,20 +18,6 @@ public class SATClause {
 
     public void addNegated(SATVariable a) {
         negatedVariables.add(a);
-    }
-
-    public boolean isSatisfied() {
-        for (var v : positiveVariables) {
-            if (v.isTrue()) {
-                return true;
-            }
-        }
-        for (var v : negatedVariables) {
-            if (v.isFalse()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public Set<SATVariable> getVariables() {
@@ -49,9 +39,33 @@ public class SATClause {
         return this.positiveVariables.contains(v);
     }
 
+    public boolean contains(SATVariable a) {
+        return this.positiveVariables.contains(a) || this.negatedVariables.contains(a);
+    }
+
+    public void removeVariable(SATVariable a) {
+        this.positiveVariables.remove(a);
+        this.negatedVariables.remove(a);
+    }
+
     public SATVariable getUnitVariable() {
         assert isUnitClause();
         return getVariables().stream().findFirst().get();
     }
 
+    public SATClause copy() {
+        var copy = new SATClause(this.id);
+        copy.positiveVariables = new TreeSet<>(this.positiveVariables);
+        copy.negatedVariables = new TreeSet<>(this.negatedVariables);
+        return copy;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof SATClause) {
+            return ((SATClause) obj).id == this.id;
+        } else {
+            return false;
+        }
+    }
 }

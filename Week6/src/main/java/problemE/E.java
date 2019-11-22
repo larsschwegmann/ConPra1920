@@ -25,7 +25,7 @@ public class E {
 
             var formula = new SATFormula();
             for (int i=0; i<n; i++) {
-                var clause = new SATClause();
+                var clause = new SATClause(i);
                 var judgeLine = Arrays.stream(buff.readLine().split(" ")).mapToInt(Integer::parseInt).toArray();
                 for (var recipe : judgeLine) {
                     if (recipe == 0) {
@@ -49,49 +49,30 @@ public class E {
     }
 
     private static boolean dpll(SATFormula formula) {
+        if (formula.isEmpty()) {
+            return true;
+        }
         if (formula.containsEmptyClause()) {
             return false;
         }
-
         if (formula.getUnitClauses().size() > 0) {
-            var unitClause = formula.getUnitClauses().stream().findFirst().get();
+            var unitClause = formula.getUnitClauses().get(0);
             var unitVar = unitClause.getUnitVariable();
-            if (unitVar.wasAssignedValue()) {
-                if (unitClause.isPositive(unitVar)) {
-                    if (unitVar.isFalse()) {
-                        return false;
-                    }
-                } else {
-                    if (unitVar.isTrue()) {
-                        return false;
-                    }
-                }
+            if (unitClause.isPositive(unitVar)) {
+                unitVar.setAssignedValue(true);
             } else {
-                if (unitClause.isPositive(unitVar)) {
-                    unitVar.setAssignedValue(true);
-                } else {
-                    unitVar.setAssignedValue(false);
-                }
+                unitVar.setAssignedValue(false);
             }
-            formula.removeClause(unitClause);
-            return dpll(formula);
+            return dpll(formula.simplify(unitVar));
         }
 
-        var var = formula.getNextUnassignedVariable();
-        if (!var.isPresent()) {
-            return formula.isSatisfied();
-        }
-        var.get().setAssignedValue(true);
-        if (dpll(formula)) {
+        var freeVar = formula.getAllVariables().get(0);
+        freeVar.setAssignedValue(true);
+        if (dpll(formula.simplify(freeVar))) {
             return true;
         } else {
-            var.get().setAssignedValue(false);
-            if (dpll(formula)) {
-                return true;
-            } else {
-                var.get().resetAssignment();
-                return false;
-            }
+            freeVar.setAssignedValue(false);
+            return dpll(formula.simplify(freeVar));
         }
     }
 }
