@@ -6,20 +6,20 @@ import java.io.InputStreamReader;
 import java.util.*;
 import java.util.stream.IntStream;
 
-class Tuple {
-    private int left;
-    private int right;
+class Tuple<A, B> {
+    private A left;
+    private B right;
 
-    public Tuple(int left, int right) {
+    public Tuple(A left, B right) {
         this.left = left;
         this.right = right;
     }
 
-    public int getLeft() {
+    public A getLeft() {
         return left;
     }
 
-    public int getRight() {
+    public B getRight() {
         return right;
     }
 }
@@ -70,50 +70,58 @@ public class E {
 
             // IT IS TIME FIND DA WAY
 
-            var leaDistances = new int[adjancencies.size()];
-            Arrays.fill(leaDistances, Integer.MAX_VALUE);
-            leaDistances[n] = 0;
+            HashMap<Integer, Integer>[] dp = new HashMap[n + 1];
+            for (int i=0; i<dp.length; i++) {
+                dp[i] = new HashMap<>();
+            }
+            dp[n].put(0, objects[n]);
 
-            var maxItems = new int[n + 1];
-            Arrays.fill(maxItems, -1);
-            maxItems[n] = objects[n];
+            var queue = new PriorityQueue<Tuple<Tuple<Integer, Integer>, Integer>>(Comparator.comparing(Tuple::getRight));
+            queue.add(new Tuple<>(new Tuple<>(n, 0), objects[n]));
 
-            var queue = new PriorityQueue<>(Comparator.comparing(Tuple::getRight).reversed());
-            queue.add(new Tuple(n, objects[n])); // Start node
+            int max = -1;
 
             while (!queue.isEmpty()) {
-                var node = queue.poll();
-                var shitFlag = false;
+                var tuple = queue.poll();
+                var node = tuple.getLeft();
+
                 for (var next : adjancencies.get(node.getLeft())) {
                     if (next >= node.getLeft()) {
                         continue;
                     }
-                    if (leaDistances[node.getLeft()] + distances[node.getLeft()][next] >= cloneDistances[next]) {
+                    if (node.getRight() + distances[node.getLeft()][next] >= cloneDistances[next]) {
                         continue;
                     }
+                    var nodeTime = node.getRight();
+                    var nextTime = nodeTime + distances[node.getLeft()][next];
 
-                    shitFlag = true;
-                    if (objects[next] + maxItems[node.getLeft()] > maxItems[next]) {
-                        maxItems[next] = objects[next] + maxItems[node.getLeft()];
-                        leaDistances[next] = leaDistances[node.getLeft()] + distances[node.getLeft()][next];
-                        queue.add(new Tuple(next, maxItems[next]));
+                    if (dp[next].getOrDefault(nextTime, Integer.MIN_VALUE) == Integer.MIN_VALUE) {
+                        var nodeObjects = dp[node.getLeft()].get(nodeTime);
+                        dp[next].put(nextTime, nodeObjects + objects[next]);
+                    } else {
+                        var nodeObjects = dp[node.getLeft()].get(nodeTime);
+                        var nextObjects = dp[next].get(nextTime);
+                        dp[next].put(nextTime, Math.max(nodeObjects + objects[next], nextObjects));
                     }
-                    //queue.add(next);
-                }
-                if (!shitFlag && node.getLeft() != 0) {
-                    leaDistances[node.getLeft()] = Integer.MAX_VALUE;
-                    maxItems[node.getLeft()] = -1;
+
+                    var nextObjects = dp[next].get(nextTime);
+                    if (next == 0 && nextObjects > max) {
+                        max = nextObjects;
+                    }
+                    queue.add(new Tuple<>(new Tuple<>(next, node.getRight() + distances[node.getLeft()][next]), nextObjects));
                 }
             }
 
-            if (maxItems[0] > -1) {
-                System.out.println("Case #" + t + ": " + maxItems[0]);
+            if (max > -1) {
+                System.out.println("Case #" + t + ": " + max);
             } else {
                 System.out.println("Case #" + t + ": impossible");
             }
 
+
             buff.readLine();
         }
+
     }
 
     private static int[] djikstra(ArrayList<ArrayList<Integer>> adjancencies, int[][] distances, int source) {
@@ -121,10 +129,10 @@ public class E {
         Arrays.fill(distancesFromSource, Integer.MAX_VALUE);
         distancesFromSource[source] = 0;
 
-        var queue = new PriorityQueue<>(Comparator.comparing(Tuple::getRight));
+        var queue = new PriorityQueue<Tuple<Integer, Integer>>(Comparator.comparing(Tuple::getRight));
 
         for (int i = 0; i < adjancencies.size(); i++) {
-            queue.add(new Tuple(i, distancesFromSource[i]));
+            queue.add(new Tuple<>(i, distancesFromSource[i]));
         }
 
         while (!queue.isEmpty()) {
@@ -133,7 +141,7 @@ public class E {
             for (var next : adjancencies.get(node.getLeft())) {
                 if (distancesFromSource[node.getLeft()] + distances[node.getLeft()][next] < distancesFromSource[next]) {
                     distancesFromSource[next] = distancesFromSource[node.getLeft()] + distances[node.getLeft()][next];
-                    queue.add(new Tuple(next, distancesFromSource[next]));
+                    queue.add(new Tuple<>(next, distancesFromSource[next]));
                 }
             }
         }
