@@ -6,9 +6,6 @@ import problemB.B;
 import problemC.C;
 import problemD.D;
 import problemE.E;
-import problemF.F;
-import problemG.G;
-import problemH.H;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -80,7 +77,7 @@ class Tests {
     void problemC() throws IOException {
         var inputs = getTestInput("C");
         var outputs = getTestOutput("C");
-        for (int i=1; i<inputs.length; i++) {
+        for (int i=0; i<inputs.length; i++) {
             var in = inputs[i];
             var expectedOut = outputs[i];
             var mockIn = new ByteArrayInputStream(in.getBytes());
@@ -118,54 +115,6 @@ class Tests {
             var mockIn = new ByteArrayInputStream(in.getBytes());
             System.setIn(mockIn);
             E.main(EMPTY_ARRAY);
-            System.setIn(System.in);
-            assertEquals(expectedOut, outContent.toString());
-            outContent.reset();
-        }
-    }
-
-    @Test
-    void problemF() throws IOException {
-        var inputs = getTestInput("F");
-        var outputs = getTestOutput("F");
-        for (int i=0; i<inputs.length; i++) {
-            var in = inputs[i];
-            var expectedOut = outputs[i];
-            var mockIn = new ByteArrayInputStream(in.getBytes());
-            System.setIn(mockIn);
-            F.main(EMPTY_ARRAY);
-            System.setIn(System.in);
-            assertEquals(expectedOut, outContent.toString());
-            outContent.reset();
-        }
-    }
-
-    @Test
-    void problemG() throws IOException {
-        var inputs = getTestInput("G");
-        var outputs = getTestOutput("G");
-        for (int i=0; i<inputs.length; i++) {
-            var in = inputs[i];
-            var expectedOut = outputs[i];
-            var mockIn = new ByteArrayInputStream(in.getBytes());
-            System.setIn(mockIn);
-            G.main(EMPTY_ARRAY);
-            System.setIn(System.in);
-            assertEquals(expectedOut, outContent.toString());
-            outContent.reset();
-        }
-    }
-
-    @Test
-    void problemH() throws IOException {
-        var inputs = getTestInput("H");
-        var outputs = getTestOutput("H");
-        for (int i=0; i<inputs.length; i++) {
-            var in = inputs[i];
-            var expectedOut = outputs[i];
-            var mockIn = new ByteArrayInputStream(in.getBytes());
-            System.setIn(mockIn);
-            H.main(EMPTY_ARRAY);
             System.setIn(System.in);
             assertEquals(expectedOut, outContent.toString());
             outContent.reset();
