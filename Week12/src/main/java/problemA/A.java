@@ -68,7 +68,7 @@ class Vector3d {
     }
 
     public boolean isAtInfinity() {
-        return z == 0;
+        return Math.abs(z) < 0.000001;
     }
 
     public static Vector3d crossProduct(Vector3d lhs, Vector3d rhs) {
@@ -111,12 +111,12 @@ public class A {
             var sword2CrossguardLine = Vector3d.crossProduct(sword2Crossguard1, sword2Crossguard2);
 
             var q1 = Vector3d.crossProduct(sword1CrossguardLine, new Vector3d(0, 0, 1));
-            var qt1 = new Vector3d(q1.getY(), -q1.getX(), 0);
-            var m1 = Vector3d.crossProduct(sword1Pommel, qt1);
+            var q1Orth = new Vector3d(q1.getY(), -q1.getX(), 0);
+            var m1 = Vector3d.crossProduct(sword1Pommel, q1Orth);
 
             var q2 = Vector3d.crossProduct(sword2CrossguardLine, new Vector3d(0, 0, 1));
-            var qt2 = new Vector3d(q2.getY(), -q2.getX(), 0);
-            var m2 = Vector3d.crossProduct(sword2Pommel, qt2);
+            var q2Orth = new Vector3d(q2.getY(), -q2.getX(), 0);
+            var m2 = Vector3d.crossProduct(sword2Pommel, q2Orth);
 
             var swordIntersectPoint = Vector3d.crossProduct(m1, m2);
 
@@ -129,10 +129,10 @@ public class A {
 
             var swordIntersectNormalized = swordIntersectPoint.normalized();
             var sword1CrossguardIntersect = Vector3d.crossProduct(m1, sword1CrossguardLine).normalized();
-            var sword2CrossguardIntersect = Vector3d.crossProduct(m1, sword1CrossguardLine).normalized();
+            var sword2CrossguardIntersect = Vector3d.crossProduct(m2, sword2CrossguardLine).normalized();
 
-            if (swordIntersectNormalized.isOnLineSegment(sword1CrossguardIntersect, sword1Pommel.normalized()) ||
-                    swordIntersectNormalized.isOnLineSegment(sword2CrossguardIntersect, sword2Pommel.normalized())) {
+            if (swordIntersectNormalized.getY() < sword1CrossguardIntersect.getY() ||
+                    swordIntersectNormalized.getY() < sword2CrossguardIntersect.getY()) {
                 System.out.println("strange");
                 continue;
             }

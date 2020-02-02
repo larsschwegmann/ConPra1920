@@ -1,11 +1,8 @@
-package problemE;
+package problemD;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.stream.Collectors;
 
 class Vector2d {
     private double x;
@@ -82,6 +79,12 @@ class Vector3d {
         return new Vector3d(a.x + b.x, a.y + b.y, 1);
     }
 
+    public static Vector3d orthogonalLine(Vector3d src, Vector3d line) {
+        var q1 = Vector3d.crossProduct(line, new Vector3d(0, 0, 1));
+        var qt1 = new Vector3d(q1.getY(), -q1.getX(), 0);
+        return Vector3d.crossProduct(src, qt1);
+    }
+
     @Override
     public String toString() {
         return "Vector3d{" +
@@ -134,7 +137,7 @@ class Matrix3d {
     }
 }
 
-public class E {
+public class D {
     public static void main(String[] args) throws IOException {
         var in = new InputStreamReader(System.in);
         var buff = new BufferedReader(in);
@@ -142,57 +145,54 @@ public class E {
         var casesCount = Integer.parseInt(buff.readLine());
 
         for (int t = 1; t <= casesCount; t++) {
-            var ndas = buff.readLine().split(" ");
-            var nda = Arrays.stream(ndas).limit(3).mapToInt(Integer::parseInt).toArray();
-            var n = nda[0];
-            var d = nda[1];
-            var a = Math.toRadians(nda[2]);
-            var s = ndas[3];
+            var leaLine = buff.readLine().split(" ");
+            var leaX = Integer.parseInt(leaLine[0]);
+            var leaY = Integer.parseInt(leaLine[1]);
 
-            var productionMap = new HashMap<Character, String>();
+            var snowLine = buff.readLine().split(" ");
+            var snowballX = Double.parseDouble(snowLine[0]);
+            var snowballY = Double.parseDouble(snowLine[1]);
 
-            for (int i = 0; i < n; i++) {
-                var productionLine = buff.readLine().split("=>");
-                var x = productionLine[0].charAt(0);
-                var y = productionLine[1];
-                productionMap.put(x, y);
+            var wallLine = buff.readLine().split(" ");
+            var wallOneX = Integer.parseInt(wallLine[0]);
+            var wallOneY = Integer.parseInt(wallLine[1]);
+            var wallTwoX = Integer.parseInt(wallLine[2]);
+            var wallTwoY = Integer.parseInt(wallLine[3]);
+
+            var enemyLine = buff.readLine().split(" ");
+            var enemyX = Double.parseDouble(enemyLine[0]);
+            var enemyY = Double.parseDouble(enemyLine[1]);
+
+            var lea = new Vector2d(leaX, leaY).homogenized();
+            var snowball = new Vector2d(snowballX, snowballY).homogenized();
+            var wall = Vector3d.crossProduct(new Vector2d(wallOneX, wallOneY).homogenized(), new Vector2d(wallTwoX, wallTwoY).homogenized());
+            var enemyProjected = new Vector2d(enemyX, enemyY).homogenized();
+
+            // Line through Lea and Snowball
+            var leaSnowball = Vector3d.crossProduct(lea, snowball);
+
+            // Perpendicular line through enemy projected and wall
+            var projectionLine = Vector3d.orthogonalLine(enemyProjected, wall);
+
+            // Get intersection betweeen leaSnowball and projectionLine
+            var enemy = Vector3d.crossProduct(leaSnowball, projectionLine);
+
+            if (enemy.isAtInfinity()) {
+                // Handle parallel case here
+                // Intersect wall with projectLine
+                var intersect = Vector3d.crossProduct(projectionLine, wall);
+                var intersectDirection = Vector3d.crossProduct(intersect, new Vector3d(0, 0, 1));
+
+
+
+                continue;
             }
 
-            var instructions = s;
-            for (int i = 0; i < d; i++) {
-                instructions = Arrays.stream(instructions.split(""))
-                        .map(b -> {
-                            if (b.charAt(0) == '+' || b.charAt(0) == '-') {
-                                return b;
-                            }
-                            return productionMap.get(b.charAt(0));
-                        }).collect(Collectors.joining());
-            }
+            var enemy2d = enemy.normalized();
 
-            var sb = new StringBuilder("Case #" + t + ":\n");
+            System.out.println("Case #" + t + ": " + enemy2d.getX() + " " + enemy2d.getY());
 
-            var currentPos = new Vector2d(0, 0).homogenized();
-            var direction = new Vector2d(1, 0).homogenized();
-            sb.append(currentPos.normalized().toString()).append("\n");
-
-            for (char c : instructions.toCharArray()) {
-                switch (c) {
-                    case '+':
-                        direction = Matrix3d.vectorProduct(direction, Matrix3d.rotationMatrix(a));
-                        break;
-                    case '-':
-                        direction = Matrix3d.vectorProduct(direction, Matrix3d.rotationMatrix(-a));
-                        break;
-                    default:
-                        currentPos = Vector3d.add(currentPos, direction);
-                        sb.append(currentPos.normalized().toString()).append("\n");
-                        break;
-                }
-            }
-
-            System.out.print(sb.toString());
             buff.readLine();
         }
-
     }
 }
